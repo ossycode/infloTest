@@ -11,7 +11,7 @@ public class UserServiceTests
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var service = CreateService();
-        var users = SetupUsers();
+        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
 
         // Act: Invokes the method under test with the arranged parameters.
         var result = service.GetAll();
@@ -20,18 +20,31 @@ public class UserServiceTests
         result.Should().BeSameAs(users);
     }
 
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    [Fact]
+    public void FilterByActive_WhenActiveParameterIsTrue_MustReturnOnlyActiveUsers()
     {
-        var users = new[]
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+
+        //Act
+        var result = service.FilterByActive(true);
+
+        // Assert
+        result.Should().BeEquivalentTo(users.Where(user => user.IsActive));
+
+    }
+
+    private IQueryable<User> SetupUsers(params (string forename, string surname, string email, bool isActive)[] userParams)
+    {
+        var users = userParams.Select(user => new User
         {
-            new User
-            {
-                Forename = forename,
-                Surname = surname,
-                Email = email,
-                IsActive = isActive
-            }
-        }.AsQueryable();
+            Forename = user.forename,
+            Surname = user.surname,
+            Email = user.email,
+            IsActive = user.isActive
+
+        }).AsQueryable();
 
         _dataContext
             .Setup(s => s.GetAll<User>())
