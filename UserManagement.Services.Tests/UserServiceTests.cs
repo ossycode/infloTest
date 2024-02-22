@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
@@ -12,7 +13,7 @@ public class UserServiceTests
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var service = CreateService();
-        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+        var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         // Act: Invokes the method under test with the arranged parameters.
         var result = service.GetAll();
@@ -28,7 +29,7 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+        var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         //Act
         var result = service.FilterByActive(true);
@@ -45,7 +46,7 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+        var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1992"));
 
         //Act
         var result = service.FilterByActive(false);
@@ -57,14 +58,15 @@ public class UserServiceTests
     #endregion
 
     #region SetupUsers
-    private IQueryable<User> SetupUsers(params (string forename, string surname, string email, bool isActive)[] userParams)
+    private IQueryable<User> SetupUsers(params (string forename, string surname, string email, bool isActive, string dateOfBirth)[] userParams)
     {
-        var users = userParams.Select(user => new User
+        var users = userParams.Select(u => new User
         {
-            Forename = user.forename,
-            Surname = user.surname,
-            Email = user.email,
-            IsActive = user.isActive
+            Forename = u.forename,
+            Surname = u.surname,
+            Email = u.email,
+            IsActive = u.isActive,
+            DateOfBirth = DateTime.Parse(u.dateOfBirth)
 
         }).AsQueryable();
 

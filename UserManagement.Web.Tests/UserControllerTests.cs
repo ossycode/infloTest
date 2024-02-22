@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -14,7 +15,7 @@ public class UserControllerTests
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var controller = CreateController();
-        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+        var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1992"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         // Act: Invokes the method under test with the arranged parameters.
         var result = controller.List(isActive: null);
@@ -33,7 +34,7 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", true));
+        var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1992"), ("Jane", "User2", "juser2@example.com", true, "10/10/1991"));
 
         _userService.Setup(s => s.FilterByActive(true)).Returns(users);
 
@@ -52,7 +53,7 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var users = SetupUsers(("John", "User", "juser@example.com", false), ("Jane", "User2", "juser2@example.com", false));
+        var users = SetupUsers(("John", "User", "juser@example.com", false, "10/10/1992"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         _userService.Setup(s => s.FilterByActive(false)).Returns(users);
 
@@ -67,14 +68,15 @@ public class UserControllerTests
 
 
     #region SetUpUsers
-    private User[] SetupUsers(params (string forename, string surname, string email, bool isActive)[] userParams)
+    private User[] SetupUsers(params (string forename, string surname, string email, bool isActive, string dateOfBirth)[] userParams)
     {
-        var users = userParams.Select(user => new User
+        var users = userParams.Select(u => new User
         {
-            Forename = user.forename,
-            Surname = user.surname,
-            Email = user.email,
-            IsActive = user.isActive
+            Forename = u.forename,
+            Surname = u.surname,
+            Email = u.email,
+            IsActive = u.isActive,
+            DateOfBirth = DateTime.Parse(u.dateOfBirth)
 
         }).ToArray();
 
