@@ -6,6 +6,7 @@ namespace UserManagement.Data.Tests;
 
 public class UserServiceTests
 {
+    #region GetSameEntities
     [Fact]
     public void GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
     {
@@ -19,7 +20,9 @@ public class UserServiceTests
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Should().BeSameAs(users);
     }
+    #endregion
 
+    #region ReturnActiveUsers
     [Fact]
     public void FilterByActive_WhenActiveParameterIsTrue_MustReturnOnlyActiveUsers()
     {
@@ -34,7 +37,26 @@ public class UserServiceTests
         result.Should().BeEquivalentTo(users.Where(user => user.IsActive));
 
     }
+    #endregion
 
+    #region ReturnInActiveUsers
+    [Fact]
+    public void FilterByActive_WhenActiveParameterIsFalse_MustReturnOnlyInActiveUsers()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(("John", "User", "juser@example.com", true), ("Jane", "User2", "juser2@example.com", false));
+
+        //Act
+        var result = service.FilterByActive(false);
+
+        // Assert
+        result.Should().BeEquivalentTo(users.Where(user => !user.IsActive));
+
+    }
+    #endregion
+
+    #region SetupUsers
     private IQueryable<User> SetupUsers(params (string forename, string surname, string email, bool isActive)[] userParams)
     {
         var users = userParams.Select(user => new User
@@ -52,6 +74,9 @@ public class UserServiceTests
 
         return users;
     }
+
+    #endregion
+
 
     private readonly Mock<IDataContext> _dataContext = new();
     private UserService CreateService() => new(_dataContext.Object);
