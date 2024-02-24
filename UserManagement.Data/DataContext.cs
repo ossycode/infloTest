@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using UserManagement.Models;
+using System;
 
 namespace UserManagement.Data;
 
@@ -9,13 +9,17 @@ public class DataContext : DbContext, IDataContext
 {
     public DataContext() => Database.EnsureCreated();
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseInMemoryDatabase("UserManagement.Data.DataContext");
+    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-    protected override void OnModelCreating(ModelBuilder model)
-        => model.Entity<User>().HasData(new[]
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<User>().ToTable("Users");
+
+        modelBuilder.Entity<User>().HasData(new[]
         {
-            new User { Id = 1, Forename = "Peter", Surname = "Loew", Email = "ploew@example.com", IsActive = true, DateOfBirth= DateTime.Parse("10/10/1991") },
+            new User { Id = 1,Forename = "Peter", Surname = "Loew", Email = "ploew@example.com", IsActive = true, DateOfBirth= DateTime.Parse("10/10/1991") },
             new User { Id = 2, Forename = "Benjamin Franklin", Surname = "Gates", Email = "bfgates@example.com", IsActive = true,  DateOfBirth= DateTime.Parse("7/15/1972") },
             new User { Id = 3, Forename = "Castor", Surname = "Troy", Email = "ctroy@example.com", IsActive = false,  DateOfBirth= DateTime.Parse("7/17/1989") },
             new User { Id = 4, Forename = "Memphis", Surname = "Raines", Email = "mraines@example.com", IsActive = true,  DateOfBirth= DateTime.Parse("3/23/1985") },
@@ -27,8 +31,9 @@ public class DataContext : DbContext, IDataContext
             new User { Id = 10, Forename = "Johnny", Surname = "Blaze", Email = "jblaze@example.com", IsActive = true,  DateOfBirth= DateTime.Parse("6/11/1980") },
             new User { Id = 11, Forename = "Robin", Surname = "Feld", Email = "rfeld@example.com", IsActive = true,  DateOfBirth= DateTime.Parse("6/11/1981") },
         });
+    }
 
-    public DbSet<User>? Users { get; set; }
+    public virtual DbSet<User>? Users { get; set; }
 
     public IQueryable<TEntity> GetAll<TEntity>() where TEntity : class
         => base.Set<TEntity>();
