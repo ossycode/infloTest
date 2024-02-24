@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
@@ -63,6 +64,86 @@ public class UserControllerTests
         // Assert
         result.Model.Should().BeOfType<UserListViewModel>().Which.Items.Should().BeEquivalentTo(users);
 
+    }
+    #endregion
+
+    #region CreateUserIsInValid
+    [Fact]
+    public void Create_WhenModelStateIsInvalid_ReturnsViewWithErrors()
+    {
+        // Arrange
+        var controller = CreateController();
+        var viewModel = new CreateUserViewModel();
+
+        // Manually add model state error for testing
+        controller.ModelState.AddModelError("Forename", "Forename can't be blank");
+
+        // Act
+        IActionResult result = controller.Create(viewModel);
+
+        // Assert
+        ViewResult viewResult = Assert.IsType<ViewResult>(result);
+        viewResult.ViewData.Model.Should().BeAssignableTo<CreateUserViewModel>();
+        viewResult.ViewData.Model.Should().Be(viewModel);
+
+    }
+    #endregion
+
+    #region CreateUserAndRedirect
+    [Fact]
+    public void Create_WhenModelStateIsValid_CreatesUserAndRedirects()
+    {
+        // Arrange
+        var controller = CreateController();
+        var viewModel = new CreateUserViewModel();
+
+        // Act
+        IActionResult result = controller.Create(viewModel);
+
+        // Assert
+        RedirectToActionResult redirectResult = Assert.IsType<RedirectToActionResult>(result);
+
+        redirectResult.ActionName.Should().Be("List");
+
+    }
+    #endregion
+
+    #region EditValidUser
+    [Fact]
+    public void Edit_WithValidViewModel_ShouldUpdateUserSuccessfully()
+    {
+        // Arrange
+        var controller = CreateController();
+        var user = SetupUsers(("John", "Doe", "john@example.com", true, "10/10/1991"))[0];
+        var updateUserViewModel = new UpdateUserViewModel { Id = user.Id, Forename = "Jane" };
+        _userService.Setup(m => m.GetById(user.Id)).Returns(user);
+
+        // Act
+        IActionResult result = controller.Edit(updateUserViewModel);
+
+        // Assert
+        var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
+        redirectToActionResult.ActionName.Should().Be("List");
+        _userService.Verify(m => m.Update(user), Times.Once);
+    }
+    #endregion
+
+    #region DeleteValidUser
+    [Fact]
+    public void Delete_WithValidId_ShouldDeleteUserSuccessfully()
+    {
+        // Arrange
+        var controller = CreateController();
+        var user = new User { Id = 1, Forename = "John" };
+        _userService.Setup(m => m.GetById(user.Id)).Returns(user);
+
+        // Act
+        var result = controller.Delete(new UserViewModel { Id = user.Id });
+
+        // Assert
+        _userService.Verify(m => m.Delete(user), Times.Once);
+        var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
+        redirectToActionResult.ActionName.Should().Be("List");
     }
     #endregion
 

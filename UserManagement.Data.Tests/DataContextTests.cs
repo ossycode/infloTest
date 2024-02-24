@@ -46,5 +46,25 @@ public class DataContextTests
         result.Should().NotContain(s => s.Email == entity.Email);
     }
 
+    [Fact]
+    public void Update_WhenEntityUpdated_MustReflectChanges()
+    {
+        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
+        var context = CreateContext();
+        var entityToUpdate = context.GetAll<User>().First();
+
+        var newSurname = "UpdatedSurname";
+        entityToUpdate.Surname = newSurname;
+
+        // Act: Invokes the method under test with the arranged parameters.
+        context.Update(entityToUpdate);
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        var updatedEntity = context.GetAll<User>().FirstOrDefault(u => u.Id == entityToUpdate.Id);
+
+        updatedEntity.Should().NotBeNull();
+        updatedEntity!.Surname.Should().Be(newSurname);
+    }
+
     private DataContext CreateContext() => new();
 }

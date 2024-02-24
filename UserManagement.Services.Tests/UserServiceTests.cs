@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
@@ -54,6 +55,128 @@ public class UserServiceTests
         // Assert
         result.Should().BeEquivalentTo(users.Where(user => !user.IsActive));
 
+    }
+    #endregion
+
+    #region AddUserSuccess
+    [Fact]
+    public void Create_WithValidUser_ShouldAddUserSuccessfully()
+    {
+        // Arrange
+        var service = CreateService();
+        var newUser = new User { Forename = "New", Surname = "User", Email = "nuser@example.com", IsActive = true, DateOfBirth = DateTime.Parse("1/1/1990") };
+
+        // Act
+        service.Create(newUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Create(It.IsAny<User>()), Times.Once);
+    }
+    #endregion
+
+    #region AddNullUserException
+    [Fact]
+    public void Create_WithNullUser_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        var service = CreateService();
+        User? nullUser = null;
+
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => service.Create(nullUser));
+    }
+    #endregion
+
+    #region GetUserByValidId
+    [Fact]
+    public void GetById_WithExistingId_ShouldReturnCorrectUser()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
+        var firstUser = users.FirstOrDefault();
+
+        // Act
+        Assert.NotNull(firstUser);
+        var result = service.GetById(firstUser.Id);
+
+        // Assert
+        result.Should().BeEquivalentTo(firstUser);
+    }
+    #endregion
+
+    #region GetUserByIdWithNonExistingId
+    [Fact]
+    public void GetById_WithNonExistingId_ShouldThrowKeyNotFoundException()
+    {
+        // Arrange
+        var service = CreateService();
+        SetupUsers();
+
+        // Act & Assert
+        Assert.Throws<KeyNotFoundException>(() => service.GetById(999));
+    }
+
+    #endregion
+
+    #region UpdateUserSuccess
+    [Fact]
+    public void Update_WithExistingUser_ShouldUpdateSuccessfully()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
+        var firstUser = users.FirstOrDefault();
+
+        // Act
+        service.Update(firstUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Update(It.IsAny<User>()), Times.Once);
+    }
+    #endregion
+
+    #region UpdateNullUser
+    [Fact]
+    public void Update_WithNullUser_ToBeArgumentNullException()
+    {
+        // Arrange
+        var service = CreateService();
+        User? userToUpdate = null;
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => service.Update(userToUpdate));
+    }
+    #endregion
+
+    #region DeleteValidUser
+    [Fact]
+    public void Delete_WithExistingUser_ShouldDeleteSuccessfully()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
+        var firstUser = users.FirstOrDefault();
+
+        // Act
+        service.Delete(firstUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Delete(It.IsAny<User>()), Times.Once);
+    }
+    #endregion
+
+    #region DeleteInvalidUser
+    [Fact]
+    public void Delete_WithNonExistingUser_ShouldThrowKeyNotFoundException()
+    {
+        // Arrange
+        var service = CreateService();
+        var nonExistingUser = new User { Id = 100, Forename = "forname", Surname = "User", Email = "neuser@example.com", IsActive = false, DateOfBirth = DateTime.Parse("1/1/1990") };
+
+        // Act & Assert
+        Assert.Throws<KeyNotFoundException>(() => service.Delete(nonExistingUser));
     }
     #endregion
 
