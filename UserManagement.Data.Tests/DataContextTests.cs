@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using UserManagement.Models;
 
@@ -18,11 +19,12 @@ public class DataContextTests
     }
 
     [Fact]
-    public void GetAll_WhenNewEntityAdded_MustIncludeNewEntity()
+    public async Task GetAll_WhenNewEntityAdded_MustIncludeNewEntity()
     {
-        // Arrange: 
+
         using (var context = new DataContext(_options))
         {
+            // Arrange: 
             var entity = new User
             {
                 Id = 1,
@@ -33,10 +35,10 @@ public class DataContextTests
             };
 
             // Act: Invokes the method under test with the arranged parameters.
-            context.Create(entity);
+            await context.CreateAsync(entity);
 
             // Assert: Verifies that the action of the method under test behaves as expected.
-            var result = context.GetAll<User>();
+            var result = await context.GetAllAsync<User>();
 
             result
                 .Should().Contain(s => s.Email == entity.Email)
@@ -46,48 +48,47 @@ public class DataContextTests
 
 
     [Fact]
-    public void GetAll_WhenDeleted_MustNotIncludeDeletedEntity()
+    public async Task GetAll_WhenDeleted_MustNotIncludeDeletedEntity()
     {
         // Arrange
         using (var context = new DataContext(_options))
         {
             var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com" };
             var user2 = new User { Forename = "Jane", Surname = "User", Email = "jane@example.com" };
-            context.Create(user1);
-            context.Create(user2);
-            var entityToDelete = context.GetAll<User>().First();
+            await context.CreateAsync(user1);
+            await context.CreateAsync(user2);
+            var entityToDelete = (await context.GetAllAsync<User>()).First();
 
             // Act
-            context.Delete(entityToDelete);
+            await context.DeleteAsync(entityToDelete);
 
-            var result = context.GetAll<User>();
+            var result = await context.GetAllAsync<User>();
 
             // Assert
             result.Should().NotContain(entityToDelete);
-            //result.Should().NotContain(s => s.Email == entityToDelete.Email);
         }
 
     }
 
     [Fact]
-    public void Update_WhenEntityUpdated_MustReflectChanges()
+    public async Task Update_WhenEntityUpdated_MustReflectChanges()
     {
         using (var context = new DataContext(_options))
         {
             // Arrange
             var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com" };
-            context.Create(user1);
-            var entityToUpdate = context.GetAll<User>().First();
+            await context.CreateAsync(user1);
+            var entityToUpdate = (await context.GetAllAsync<User>()).First();
 
 
             var newSurname = "User1";
             entityToUpdate.Surname = newSurname;
 
             // Act: Invokes the method under test with the arranged parameters.
-            context.Update(entityToUpdate);
+            await context.UpdateAsync(entityToUpdate);
 
             // Assert: Verifies that the action of the method under test behaves as expected.
-            var updatedEntity = context.GetAll<User>().FirstOrDefault(u => u.Id == entityToUpdate.Id);
+            var updatedEntity = (await context.GetAllAsync<User>()).FirstOrDefault(u => u.Id == entityToUpdate.Id);
 
             Assert.NotNull(updatedEntity);
             updatedEntity.Surname.Should().Be(newSurname);

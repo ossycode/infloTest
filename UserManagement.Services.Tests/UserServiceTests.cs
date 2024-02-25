@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
+
 
 namespace UserManagement.Data.Tests;
 
@@ -10,30 +13,31 @@ public class UserServiceTests
 {
     #region GetSameEntities
     [Fact]
-    public void GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
+    public async Task GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var service = CreateService();
         var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = service.GetAll();
+        var result = await service.GetAllAsync();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
+        result.Should().BeEquivalentTo(users);
+
     }
     #endregion
 
     #region ReturnActiveUsers
     [Fact]
-    public void FilterByActive_WhenActiveParameterIsTrue_MustReturnOnlyActiveUsers()
+    public async Task FilterByActive_WhenActiveParameterIsTrue_MustReturnOnlyActiveUsers()
     {
         // Arrange
         var service = CreateService();
         var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1991"));
 
         //Act
-        var result = service.FilterByActive(true);
+        var result = await service.FilterByActiveAsync(true);
 
         // Assert
         result.Should().BeEquivalentTo(users.Where(user => user.IsActive));
@@ -43,14 +47,14 @@ public class UserServiceTests
 
     #region ReturnInActiveUsers
     [Fact]
-    public void FilterByActive_WhenActiveParameterIsFalse_MustReturnOnlyInActiveUsers()
+    public async Task FilterByActive_WhenActiveParameterIsFalse_MustReturnOnlyInActiveUsers()
     {
         // Arrange
         var service = CreateService();
         var users = SetupUsers(("John", "User", "juser@example.com", true, "10/10/1991"), ("Jane", "User2", "juser2@example.com", false, "10/10/1992"));
 
         //Act
-        var result = service.FilterByActive(false);
+        var result = await service.FilterByActiveAsync(false);
 
         // Assert
         result.Should().BeEquivalentTo(users.Where(user => !user.IsActive));
@@ -60,37 +64,36 @@ public class UserServiceTests
 
     #region AddUserSuccess
     [Fact]
-    public void Create_WithValidUser_ShouldAddUserSuccessfully()
+    public async Task Create_WithValidUser_ShouldAddUserSuccessfully()
     {
         // Arrange
         var service = CreateService();
         var newUser = new User { Forename = "New", Surname = "User", Email = "nuser@example.com", IsActive = true, DateOfBirth = DateTime.Parse("1/1/1990") };
 
         // Act
-        service.Create(newUser);
+        await service.CreateAsync(newUser);
 
         // Assert
-        _dataContext.Verify(d => d.Create(It.IsAny<User>()), Times.Once);
+        _dataContext.Verify(d => d.CreateAsync(It.IsAny<User>()), Times.Once);
     }
     #endregion
 
     #region AddNullUserException
     [Fact]
-    public void Create_WithNullUser_ShouldThrowArgumentNullException()
+    public async Task Create_WithNullUser_ShouldThrowArgumentNullException()
     {
         // Arrange
         var service = CreateService();
         User? nullUser = null;
 
-
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => service.Create(nullUser));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.CreateAsync(nullUser));
     }
     #endregion
 
     #region GetUserByValidId
     [Fact]
-    public void GetById_WithExistingId_ShouldReturnCorrectUser()
+    public async Task GetById_WithExistingId_ShouldReturnCorrectUser()
     {
         // Arrange
         var service = CreateService();
@@ -99,7 +102,7 @@ public class UserServiceTests
 
         // Act
         Assert.NotNull(firstUser);
-        var result = service.GetById(firstUser.Id);
+        var result = await service.GetByIdAsync(firstUser.Id);
 
         // Assert
         result.Should().BeEquivalentTo(firstUser);
@@ -108,21 +111,21 @@ public class UserServiceTests
 
     #region GetUserByIdWithNonExistingId
     [Fact]
-    public void GetById_WithNonExistingId_ShouldThrowKeyNotFoundException()
+    public async Task GetById_WithNonExistingId_ShouldThrowKeyNotFoundException()
     {
         // Arrange
         var service = CreateService();
         SetupUsers();
 
         // Act & Assert
-        Assert.Throws<KeyNotFoundException>(() => service.GetById(999));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await service.GetByIdAsync(999));
     }
 
     #endregion
 
     #region UpdateUserSuccess
     [Fact]
-    public void Update_WithExistingUser_ShouldUpdateSuccessfully()
+    public async Task Update_WithExistingUser_ShouldUpdateSuccessfully()
     {
         // Arrange
         var service = CreateService();
@@ -130,29 +133,29 @@ public class UserServiceTests
         var firstUser = users.FirstOrDefault();
 
         // Act
-        service.Update(firstUser);
+        await service.UpdateAsync(firstUser);
 
         // Assert
-        _dataContext.Verify(d => d.Update(It.IsAny<User>()), Times.Once);
+        _dataContext.Verify(d => d.UpdateAsync(It.IsAny<User>()), Times.Once);
     }
     #endregion
 
     #region UpdateNullUser
     [Fact]
-    public void Update_WithNullUser_ToBeArgumentNullException()
+    public async Task Update_WithNullUser_ToBeArgumentNullException()
     {
         // Arrange
         var service = CreateService();
         User? userToUpdate = null;
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => service.Update(userToUpdate));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.UpdateAsync(userToUpdate));
     }
     #endregion
 
     #region DeleteValidUser
     [Fact]
-    public void Delete_WithExistingUser_ShouldDeleteSuccessfully()
+    public async Task Delete_WithExistingUser_ShouldDeleteSuccessfully()
     {
         // Arrange
         var service = CreateService();
@@ -160,23 +163,23 @@ public class UserServiceTests
         var firstUser = users.FirstOrDefault();
 
         // Act
-        service.Delete(firstUser);
+        await service.DeleteAsync(firstUser);
 
         // Assert
-        _dataContext.Verify(d => d.Delete(It.IsAny<User>()), Times.Once);
+        _dataContext.Verify(d => d.DeleteAsync(It.IsAny<User>()), Times.Once);
     }
     #endregion
 
     #region DeleteInvalidUser
     [Fact]
-    public void Delete_WithNonExistingUser_ShouldThrowKeyNotFoundException()
+    public async Task Delete_WithNonExistingUser_ShouldThrowKeyNotFoundException()
     {
         // Arrange
         var service = CreateService();
         var nonExistingUser = new User { Id = 100, Forename = "forname", Surname = "User", Email = "neuser@example.com", IsActive = false, DateOfBirth = DateTime.Parse("1/1/1990") };
 
         // Act & Assert
-        Assert.Throws<KeyNotFoundException>(() => service.Delete(nonExistingUser));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await service.DeleteAsync(nonExistingUser));
     }
     #endregion
 
@@ -194,8 +197,8 @@ public class UserServiceTests
         }).AsQueryable();
 
         _dataContext
-            .Setup(s => s.GetAll<User>())
-            .Returns(users);
+            .Setup(s => s.GetAllAsync<User>())
+            .Returns(Task.FromResult(users));
 
         return users;
     }

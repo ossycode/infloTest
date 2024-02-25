@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -11,45 +12,65 @@ namespace UserManagement.Services.Domain.Implementations;
 public class UserService : IUserService
 {
     private readonly IDataContext _dataAccess;
+
+    /// <summary>
+    /// Initializes a new instance of the UserService class.
+    /// </summary>
+    /// <param name="dataAccess">The data access object.</param>
     public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
 
     /// <summary>
-    /// Return users by active state
+    /// Filters users by active state asynchronously.
     /// </summary>
-    /// <param name="isActive"></param>
-    /// <returns></returns>
-    public IEnumerable<User> FilterByActive(bool isActive)
+    /// <param name="isActive">A boolean indicating whether to filter by active state.</param>
+    /// <returns>A task representing the asynchronous operation, yielding a collection of filtered users.</returns>
+    public async Task<IEnumerable<User>> FilterByActiveAsync(bool isActive)
     {
-        var allUsers = GetAll();
+        var allUsers = await _dataAccess.GetAllAsync<User>();
         return allUsers.Where(user => user.IsActive == isActive);
     }
 
-    public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
-
-    public void Create(User? user)
+    /// <summary>
+    /// Retrieves all users asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation, yielding a collection of all users.</returns>
+    public async Task<IEnumerable<User>> GetAllAsync()
     {
-        //check if PersonAddRequest is not null
+        return await _dataAccess.GetAllAsync<User>();
+
+    }
+
+    /// <summary>
+    /// Creates a new user asynchronously.
+    /// </summary>
+    /// <param name="user">The user to create.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public async Task CreateAsync(User? user)
+    {
         if (user == null)
         {
             throw new ArgumentNullException(nameof(user));
         }
 
-        //Model validation
         ValidationHelper.ModelValidation(user);
 
-        // Add a user Id
         if (user.Id <= 0)
         {
-            var maxId = _dataAccess.GetAll<User>().Max(u => (long?)u.Id) ?? 0;
+            var maxId = (await _dataAccess.GetAllAsync<User>()).Max(u => (long?)u.Id) ?? 0;
             user.Id = maxId + 1;
         }
 
-        _dataAccess.Create(user);
+        await _dataAccess.CreateAsync(user);
     }
 
-    public User GetById(long id)
+    /// <summary>
+    /// Retrieves a user by ID asynchronously.
+    /// </summary>
+    /// <param name="id">The ID of the user to retrieve.</param>
+    /// <returns>A task representing the asynchronous operation, yielding the user with the specified ID.</returns>
+    public async Task<User> GetByIdAsync(long id)
     {
-        var user = _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
+        var user = (await _dataAccess.GetAllAsync<User>()).FirstOrDefault(u => u.Id == id);
         if (user == null)
         {
             throw new KeyNotFoundException($"User with ID {id} was not found.");
@@ -57,32 +78,39 @@ public class UserService : IUserService
         return user;
     }
 
-    public User Update(User? user)
+    /// <summary>
+    /// Updates an existing user asynchronously.
+    /// </summary>
+    /// <param name="user">The user to update.</param>
+    /// <returns>A task representing the asynchronous operation, yielding the updated user.</returns>
+    public async Task<User> UpdateAsync(User? user)
     {
         if (user == null)
         {
             throw new ArgumentNullException(nameof(user));
         }
 
-        //GetById will throw if the user is not found.
-        GetById(user.Id);
+        await GetByIdAsync(user.Id);
 
         ValidationHelper.ModelValidation(user);
-        _dataAccess.Update(user);
+        await _dataAccess.UpdateAsync(user);
 
         return user;
     }
 
-    public void Delete(User? user)
+    /// <summary>
+    /// Deletes a user asynchronously.
+    /// </summary>
+    /// <param name="user">The user to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public async Task DeleteAsync(User? user)
     {
         if (user == null)
         {
             throw new ArgumentNullException(nameof(user));
         }
 
-        //GetById will throw error if the user is not found.
-        GetById(user.Id);
-
-        _dataAccess.Delete(user);
+        await GetByIdAsync(user.Id);
+        await _dataAccess.DeleteAsync(user);
     }
 }

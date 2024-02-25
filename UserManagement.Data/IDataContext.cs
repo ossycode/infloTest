@@ -1,31 +1,38 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 
 namespace UserManagement.Data;
 
 public interface IDataContext
 {
     /// <summary>
-    /// Get a list of items
+    /// Get a queryable list of items asynchronously.
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <returns></returns>
-    IQueryable<TEntity> GetAll<TEntity>() where TEntity : class;
+    Task<IQueryable<TEntity>> GetAllAsync<TEntity>() where TEntity : class;
 
     /// <summary>
-    /// Create a new item
+    /// Create a new item asynchronously
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    void Create<TEntity>(TEntity entity) where TEntity : class;
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <param name="entity">The entity to create.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task CreateAsync<TEntity>(TEntity entity) where TEntity : class;
 
     /// <summary>
-    /// Uodate an existing item matching the ID
+    /// Update an existing item asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    void Update<TEntity>(TEntity entity) where TEntity : class;
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <param name="entity">The entity to update.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateAsync<TEntity>(TEntity entity) where TEntity : class;
 
-    void Delete<TEntity>(TEntity entity) where TEntity : class;
+    /// <summary>
+    /// Delete an item asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <param name="entity">The entity to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task DeleteAsync<TEntity>(TEntity entity) where TEntity : class;
 }
