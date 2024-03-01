@@ -22,6 +22,7 @@
 4. On the client, improve user experience by providing proper notification when actions are completing and completed or when resources is loading
 5. API Authentication
 6. Implement Clean Architecture
+7. UI Error handling
 
 # Project Setup Guide
 
