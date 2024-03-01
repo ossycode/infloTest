@@ -19,6 +19,7 @@
 3. More Unit Testing
 3. Introduce a Repository layer to decouple the service layer and data access layer
 4. On the client, improve user experience by providing proper notification when actions are completing and completed or when resources is loading
+5. API Authentication
 
 # Project Setup Guide
 

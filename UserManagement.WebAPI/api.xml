@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UserManagement.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:UserManagement.WebAPI.Controllers.LogEntriesController">
+            <summary>
+            API controller for managing log entries.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.LogEntriesController.#ctor(UserManagement.Services.Interfaces.ILoggedEntriesService)">
+            <summary>
+            Initializes a new instance of the <see cref="T:UserManagement.WebAPI.Controllers.LogEntriesController"/> class.
+            </summary>
+            <param name="logEntriesService">The logged entries service.</param>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.LogEntriesController.GetAllLogs(System.Int32,System.Int32)">
+            <summary>
+            Retrieves a paginated list of log entries.
+            </summary>
+            <param name="pageNo">The page number.</param>
+            <param name="pageSize">The page size.</param>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.LogEntriesController.GetLogById(System.Int32)">
+            <summary>
+            Retrieves the log entry with the specified ID.
+            </summary>
+            <param name="id">The ID of the log entry.</param>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.LogEntriesController.Paginate(System.Collections.Generic.IEnumerable{UserManagement.Models.LogEntry},System.Int32,System.Int32)">
+            <summary>
+            Paginates a collection of log entries based on the specified page number and page size.
+            </summary>
+            <param name="logs">The collection of log entries to paginate.</param>
+            <param name="pageNumber">The page number.</param>
+            <param name="pageSize">The page size.</param>
+            <returns>The paginated collection of log entries.</returns>
+        </member>
+        <member name="T:UserManagement.WebAPI.Controllers.UsersController">
+            <summary>
+            API controller for managing user-related operations.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.#ctor(UserManagement.Services.Domain.Interfaces.IUserService,UserManagement.Services.Interfaces.ILoggedEntriesService)">
+            <summary>
+            Initializes a new instance of the <see cref="T:UserManagement.WebAPI.Controllers.UsersController"/> class.
+            </summary>
+            <param name="userService">The user service.</param>
+            <param name="loggedEntriesService">The logged entries service.</param>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.GetUsers(System.Nullable{System.Boolean},System.Int32,System.Int32)">
+            <summary>
+            Retrieves a paginated list of users optionally filtered by their active status.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.GetUser(System.Int64)">
+            <summary>
+            Retrieves the user with the specified ID.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.CreateUser(UserManagement.Models.User)">
+            <summary>
+            Creates a new user.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.UpdateUser(System.Int64,UserManagement.WebAPI.DTO.UserDTO)">
+            <summary>
+            Updates an existing user with the specified ID.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.DeleteUser(System.Int64)">
+            <summary>
+            Deletes the user with the specified ID.
+            </summary>
+        </member>
+        <member name="M:UserManagement.WebAPI.Controllers.UsersController.Paginate(System.Collections.Generic.IEnumerable{UserManagement.Models.User},System.Int32,System.Int32)">
+            <summary>
+            Paginates a collection of users based on the specified page number and page size.
+            </summary>
+            <param name="users">The collection of users to paginate.</param>
+            <param name="pageNumber">The page number.</param>
+            <param name="pageSize">The page size.</param>
+            <returns>The paginated collection of users.</returns>
+        </member>
+        <member name="T:UserManagement.WebAPI.DTO.PaginatedResult`1">
+            <summary>
+            Represents a paginated result containing a collection of items of type <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">The type of items contained in the paginated result.</typeparam>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.PaginatedResult`1.Items">
+            <summary>
+            Gets or sets the collection of items in the paginated result.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.PaginatedResult`1.TotalRecords">
+            <summary>
+            Gets or sets the total number of records across all pages.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.PaginatedResult`1.TotalPages">
+            <summary>
+            Gets or sets the total number of pages.
+            </summary>
+        </member>
+        <member name="T:UserManagement.WebAPI.DTO.UserDTO">
+            <summary>
+            Represents a data transfer object (DTO) for a user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.Id">
+            <summary>
+            Gets or sets the unique identifier of the user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.Forename">
+            <summary>
+            Gets or sets the forename of the user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.Surname">
+            <summary>
+            Gets or sets the surname of the user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.Email">
+            <summary>
+            Gets or sets the email address of the user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.IsActive">
+            <summary>
+            Gets or sets a value indicating whether the user is active.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.DateOfBirth">
+            <summary>
+            Gets or sets the date of birth of the user.
+            </summary>
+        </member>
+        <member name="P:UserManagement.WebAPI.DTO.UserDTO.LogEntries">
+            <summary>
+            Gets or sets the log entries associated with the user.
+            </summary>
+        </member>
+    </members>
+</doc>

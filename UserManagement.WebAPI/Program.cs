@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -26,8 +27,14 @@ builder.Services
 
     })
     .AddDomainServices()
-    .AddControllers();
+    .AddControllers(options =>
+    {
+        options.Filters.Add(new ProducesAttribute("application/json"));
+        options.Filters.Add(new ConsumesAttribute("application/json"));
+    });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options => { options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml")); });
 
 var app = builder.Build();
 
@@ -35,6 +42,9 @@ var app = builder.Build();
 app.UseCors("AllowAll");
 app.UseHsts();
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 
