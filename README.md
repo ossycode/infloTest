@@ -12,6 +12,7 @@
 11. Added a Web API project. To serve the Blazor project. Can be used for different frontend clients.
 12. Updated the data access layer to support asynchronous operations.
 13. Updated the data access layer to use a real database, and implement database schema migrations.
+14. Implemented Swagger UI for API documentation
 
 ## Things I could have done.
 1. Implement authentication and login based on the users being stored.
@@ -20,6 +21,7 @@
 3. Introduce a Repository layer to decouple the service layer and data access layer
 4. On the client, improve user experience by providing proper notification when actions are completing and completed or when resources is loading
 5. API Authentication
+6. Implement Clean Architecture
 
 # Project Setup Guide
 
