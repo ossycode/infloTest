@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
+using UserManagement.Services.Interfaces;
 
 
 namespace UserManagement.Data.Tests;
@@ -207,5 +208,11 @@ public class UserServiceTests
 
 
     private readonly Mock<IDataContext> _dataContext = new();
-    private UserService CreateService() => new(_dataContext.Object);
+    private readonly Mock<ICRUDActionsLoggerService> _logEntryService = new();
+
+    private UserService CreateService()
+    {
+        return new UserService(_dataContext.Object, _logEntryService.Object);
+    }
+
 }

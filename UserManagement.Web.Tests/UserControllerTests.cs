@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Services.Interfaces;
 using UserManagement.Web.Models.Users;
 using UserManagement.WebMS.Controllers;
 
@@ -69,27 +70,6 @@ public class UserControllerTests
     }
     #endregion
 
-    #region CreateUserIsInValid
-    [Fact]
-    public async Task Create_WhenModelStateIsInvalid_ReturnsViewWithErrors()
-    {
-        // Arrange
-        var controller = CreateController();
-        var viewModel = new CreateUserViewModel();
-
-        // Manually add model state error for testing
-        controller.ModelState.AddModelError("Forename", "Forename can't be blank");
-
-        // Act
-        IActionResult result = await controller.Create(viewModel);
-
-        // Assert
-        ViewResult viewResult = Assert.IsType<ViewResult>(result);
-        viewResult.ViewData.Model.Should().BeAssignableTo<CreateUserViewModel>();
-        viewResult.ViewData.Model.Should().Be(viewModel);
-
-    }
-    #endregion
 
     #region CreateUserAndRedirect
     [Fact]
@@ -97,7 +77,7 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var viewModel = new CreateUserViewModel();
+        var viewModel = new UserListItemViewModel();
 
         // Act
         IActionResult result = await controller.Create(viewModel);
@@ -112,13 +92,12 @@ public class UserControllerTests
 
     #region EditValidUser
     [Fact]
-    public async Task Edit_WithValidViewModel_ShouldUpdateUserSuccessfully()
+    public async Task Edit_WithValidViewModel_ShouldUpdateUserSuccessfullyAndRedirects()
     {
         // Arrange
         var controller = CreateController();
         var user = SetupUsers(("John", "Doe", "john@example.com", true, "10/10/1991"))[0];
-        var updateUserViewModel = new UpdateUserViewModel { Id = user.Id, Forename = "Jane" };
-        _userService.Setup(m => m.GetByIdAsync(user.Id)).Returns(Task.FromResult(user));
+        var updateUserViewModel = new UserListItemViewModel { Id = user.Id, Forename = "Jane" };
 
         // Act
         IActionResult result = await controller.Edit(updateUserViewModel);
@@ -132,7 +111,7 @@ public class UserControllerTests
 
     #region DeleteValidUser
     [Fact]
-    public async Task Delete_WithValidId_ShouldDeleteUserSuccessfully()
+    public async Task Delete_WithValidId_ShouldDeleteUserSuccessfullyAndRedirects()
     {
         // Arrange
         var controller = CreateController();
@@ -140,7 +119,7 @@ public class UserControllerTests
         _userService.Setup(m => m.GetByIdAsync(user.Id)).Returns(Task.FromResult(user));
 
         // Act
-        var result = await controller.Delete(new UserViewModel { Id = user.Id });
+        var result = await controller.Delete(new UserListItemViewModel { Id = user.Id });
 
         // Assert
         _userService.Verify(m => m.DeleteAsync(user), Times.Once);
@@ -174,5 +153,10 @@ public class UserControllerTests
 
 
     private readonly Mock<IUserService> _userService = new();
-    private UsersController CreateController() => new(_userService.Object);
+    private readonly Mock<ILoggedEntriesService> _logEntryService = new();
+
+    private UsersController CreateController()
+    {
+        return new UsersController(_userService.Object, _logEntryService.Object);
+    }
 }

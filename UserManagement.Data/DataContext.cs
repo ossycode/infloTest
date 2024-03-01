@@ -1,14 +1,17 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using UserManagement.Models;
 using System;
 using System.Threading.Tasks;
+using UserManagement.Models;
 
 namespace UserManagement.Data;
 
 public class DataContext : DbContext, IDataContext
 {
     public DataContext() => Database.EnsureCreated();
+
+    public virtual DbSet<User>? Users { get; set; }
+    public virtual DbSet<LogEntry> LogEntries { get; set; }
 
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
@@ -17,6 +20,7 @@ public class DataContext : DbContext, IDataContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<User>().ToTable("Users");
+        modelBuilder.Entity<LogEntry>().ToTable("LogEntries");
 
         modelBuilder.Entity<User>().HasData(new[]
         {
@@ -34,28 +38,58 @@ public class DataContext : DbContext, IDataContext
         });
     }
 
-    public virtual DbSet<User>? Users { get; set; }
-
+    /// <summary>
+    /// Gets a queryable list of entities asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <returns>A queryable list of entities.</returns>
     public async Task<IQueryable<TEntity>> GetAllAsync<TEntity>() where TEntity : class
     {
         return await Task.FromResult(Set<TEntity>().AsQueryable());
     }
 
+    /// <summary>
+    /// Creates a new entity asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="entity">The entity to be created.</param>
     public async Task CreateAsync<TEntity>(TEntity entity) where TEntity : class
     {
         await AddAsync(entity);
         await SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Updates an existing entity asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="entity">The entity to be updated.</param>
     public async Task UpdateAsync<TEntity>(TEntity entity) where TEntity : class
     {
         Update(entity);
         await SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Deletes an existing entity asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="entity">The entity to be deleted.</param>
     public async Task DeleteAsync<TEntity>(TEntity entity) where TEntity : class
     {
         Remove(entity);
         await SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Retrieves an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <returns>The entity with the specified identifier, or null if not found.</returns>
+    public async Task<TEntity?> GetEntityByIdAsync<TEntity, TId>(TId id) where TEntity : class
+    {
+        return await Set<TEntity>().FindAsync(id);
+    }
+
 }

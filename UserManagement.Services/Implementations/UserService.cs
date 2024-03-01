@@ -6,18 +6,24 @@ using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Services.Helpers;
+using UserManagement.Services.Interfaces;
 
 namespace UserManagement.Services.Domain.Implementations;
 
 public class UserService : IUserService
 {
     private readonly IDataContext _dataAccess;
+    private readonly ICRUDActionsLoggerService _crudActionsLogger;
 
     /// <summary>
     /// Initializes a new instance of the UserService class.
     /// </summary>
     /// <param name="dataAccess">The data access object.</param>
-    public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
+    public UserService(IDataContext dataAccess, ICRUDActionsLoggerService crudActionsLogger)
+    {
+        _dataAccess = dataAccess;
+        _crudActionsLogger = crudActionsLogger;
+    }
 
     /// <summary>
     /// Filters users by active state asynchronously.
@@ -36,6 +42,7 @@ public class UserService : IUserService
     /// <returns>A task representing the asynchronous operation, yielding a collection of all users.</returns>
     public async Task<IEnumerable<User>> GetAllAsync()
     {
+
         return await _dataAccess.GetAllAsync<User>();
 
     }
@@ -54,13 +61,13 @@ public class UserService : IUserService
 
         ValidationHelper.ModelValidation(user);
 
-        if (user.Id <= 0)
-        {
-            var maxId = (await _dataAccess.GetAllAsync<User>()).Max(u => (long?)u.Id) ?? 0;
-            user.Id = maxId + 1;
-        }
-
+        //if (user.Id <= 0)
+        //{
+        //    var maxId = (await _dataAccess.GetAllAsync<User>()).Max(u => (long?)u.Id) ?? 0;
+        //    user.Id = maxId + 1;
+        //}
         await _dataAccess.CreateAsync(user);
+        _crudActionsLogger.logCrudActions("Create", user.Id.ToString());
     }
 
     /// <summary>
@@ -75,6 +82,9 @@ public class UserService : IUserService
         {
             throw new KeyNotFoundException($"User with ID {id} was not found.");
         }
+
+        _crudActionsLogger.logCrudActions("Read", user.Id.ToString());
+
         return user;
     }
 
@@ -90,10 +100,10 @@ public class UserService : IUserService
             throw new ArgumentNullException(nameof(user));
         }
 
-        await GetByIdAsync(user.Id);
-
         ValidationHelper.ModelValidation(user);
         await _dataAccess.UpdateAsync(user);
+
+        _crudActionsLogger.logCrudActions("Update", user.Id.ToString());
 
         return user;
     }
@@ -112,5 +122,9 @@ public class UserService : IUserService
 
         await GetByIdAsync(user.Id);
         await _dataAccess.DeleteAsync(user);
+
+        _crudActionsLogger.logCrudActions("Delete", user.Id.ToString());
+
+
     }
 }

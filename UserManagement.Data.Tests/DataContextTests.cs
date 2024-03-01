@@ -18,6 +18,7 @@ public class DataContextTests
             .Options;
     }
 
+    #region Get All Entities Tests
     [Fact]
     public async Task GetAll_WhenNewEntityAdded_MustIncludeNewEntity()
     {
@@ -27,7 +28,6 @@ public class DataContextTests
             // Arrange: 
             var entity = new User
             {
-                Id = 1,
                 Forename = "Jane",
                 Surname = "User",
                 Email = "jane1@example.com",
@@ -45,16 +45,17 @@ public class DataContextTests
                 .Which.Should().BeEquivalentTo(entity);
         }
     }
+    #endregion
 
-
+    #region Delete Entity Tests
     [Fact]
     public async Task GetAll_WhenDeleted_MustNotIncludeDeletedEntity()
     {
         // Arrange
         using (var context = new DataContext(_options))
         {
-            var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com" };
-            var user2 = new User { Forename = "Jane", Surname = "User", Email = "jane@example.com" };
+            var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com", DateOfBirth = DateTime.Parse("1/1/1990") };
+            var user2 = new User { Forename = "Jane", Surname = "User", Email = "jane@example.com", DateOfBirth = DateTime.Parse("1/1/1990") };
             await context.CreateAsync(user1);
             await context.CreateAsync(user2);
             var entityToDelete = (await context.GetAllAsync<User>()).First();
@@ -69,14 +70,16 @@ public class DataContextTests
         }
 
     }
+    #endregion
 
+    #region Update entity Tests
     [Fact]
     public async Task Update_WhenEntityUpdated_MustReflectChanges()
     {
         using (var context = new DataContext(_options))
         {
             // Arrange
-            var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com" };
+            var user1 = new User { Forename = "John", Surname = "User", Email = "john@example.com", DateOfBirth = DateTime.Parse("1/1/1990") };
             await context.CreateAsync(user1);
             var entityToUpdate = (await context.GetAllAsync<User>()).First();
 
@@ -96,5 +99,42 @@ public class DataContextTests
 
         }
     }
+    #endregion
+
+    #region GetEntityByIdAsync Tests
+
+    [Fact]
+    public async Task GetEntityByIdAsync_WhenEntityExists_ReturnsEntity()
+    {
+        // Arrange
+        using (var context = new DataContext(_options))
+        {
+            var expectedEntity = new User { Forename = "John", Surname = "User", Email = "john@example.com", DateOfBirth = DateTime.Parse("1/1/1990") };
+            await context.CreateAsync(expectedEntity);
+
+            // Act
+            var result = await context.GetEntityByIdAsync<User, long>(expectedEntity.Id);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedEntity);
+        }
+    }
+
+    [Fact]
+    public async Task GetEntityByIdAsync_WhenEntityDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        using (var context = new DataContext(_options))
+        {
+            // Act
+            var result = await context.GetEntityByIdAsync<User, long>(999);
+
+            // Assert
+            result.Should().BeNull();
+        }
+    }
+
+    #endregion
+
 
 }

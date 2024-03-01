@@ -35,4 +35,13 @@ public interface IDataContext
     /// <param name="entity">The entity to delete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task DeleteAsync<TEntity>(TEntity entity) where TEntity : class;
+
+    /// <summary>
+    /// Retrieves a single entity of type <typeparamref name="TEntity"/> based on the provided integer <paramref name="id"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity to retrieve.</typeparam>
+    /// <param name="id">The integer identifier of the entity.</param>
+    /// <returns>A task representing the asynchronous operation, resolving to the entity if found, or <c>null</c> if not found.</returns>
+    Task<TEntity?> GetEntityByIdAsync<TEntity, TId>(TId id) where TEntity : class;
+
 }

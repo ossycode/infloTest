@@ -1,0 +1,28 @@
+﻿<h3>UsersList</h3>
+
+@code {
+    public List<Users> users { get; set; } = new();
+
+
+    public class Users
+    {
+        public long Id { get; set; }
+        public string? Forename { get; set; }
+        public string? Surname { get; set; }
+        public string? Email { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+
+    }
+
+    string API_URL = "https://localhost:7054";
+
+    private async Task RefreshList()
+    {
+        HttpClient httpClient = new HttpClient();
+        HttpResponseMessage response = await httpClient.GetAsync(API_URL + "api/users");
+        httpClient.Dispose();
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+    }
+
+}

@@ -1,0 +1,124 @@
+﻿@page "/users/add"
+@page "/users/edit/{Id:long}"
+@using ViewModels
+@using UserManagement.UI.Validations;
+@inject HttpClient httpClient
+@inject NavigationManager Navigation
+
+
+
+<PageTitle>@Title</PageTitle>
+
+
+    <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+        <h3 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">@Title</h3>
+
+    <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+        <EditForm Model="@viewModel" OnSubmit="HandleOnSubmit" class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            <DataAnnotationsValidator />
+
+            <div class="w-full">
+                <label for="Forename" class="block mb-2 text-sm font-medium text-gray-900 ">Forename</label>
+                <InputText @bind-Value="viewModel.Forename" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" />
+                <ValidationMessage For="@(()=>viewModel.Forename)" class="text-sm text-red-600 mt-2" />
+
+            </div>
+
+            <div class="w-full">
+                <label for="Surname" class="block mb-2 text-sm font-medium text-gray-900 ">Surname</label>
+                <InputText @bind-Value="viewModel.Surname" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 " />
+                <ValidationMessage For="@(()=>viewModel.Surname)" class="text-sm text-red-600 mt-2" />
+
+            </div>
+
+            <div class="w-full">
+                <label for="Email" class="block mb-2 text-sm font-medium text-gray-900 ">Email</label>
+                <InputText @bind-Value="viewModel.Email" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500  " />
+                <ValidationMessage For="@(()=>viewModel.Email)" class="text-sm text-red-600 mt-2" />
+
+            </div>
+            <div class="w-full">
+                <label for="DateOfBirth" class="block mb-2 text-sm font-medium text-gray-900">Date of Birth</label>
+                <InputDate @bind-Value="viewModel.DateOfBirth" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-gray-200 " />
+                <ValidationMessage For="@(()=>viewModel.DateOfBirth)" class="text-sm text-red-600 mt-2" />
+
+            </div>
+
+            <div class="flex gap-4">
+                <label for="isActive" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Active</label>
+                <InputCheckbox @bind-Value="viewModel.IsActive" class="shrink-0 mt-0.5 border border-gray-700 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" />
+                <ValidationMessage For="@(()=>viewModel.IsActive)" />
+
+            </div>
+
+            <div>
+                <button type="submit" class="bgClr text-bold bg-gradient-to-r from-green-800  to-yellow-500 hover:bg-gradient-to-r hover:from-yellowClr  hover:to-offYellowClr">@(Id > 0 ? "Save Changes" : "Add User") </button>
+            </div>
+
+            <div>
+                <ServerValidator @ref="serverValidator" />
+                <ValidationSummary class="text-sm text-red-600 mt-2" />
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+    private string? Title;
+
+    private ServerValidator? serverValidator;
+
+    protected override void OnParametersSet()
+    {
+        Title = Id > 0 ? "Edit User" : "Add User";
+    }
+
+    UserViewModel viewModel = new();
+
+    private async Task HandleOnSubmit()
+    {
+        HttpResponseMessage response;
+
+        if (Id > 0)
+        {
+            response = await httpClient.PutAsJsonAsync($"users/{Id}", viewModel);
+        }
+        else
+        {
+            response = await httpClient.PostAsJsonAsync("users/", viewModel);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            if (response.Headers.Location != null)
+            {
+                Navigation.NavigateTo(response.Headers.Location.ToString());
+
+            }
+            else
+            {
+                Navigation.NavigateTo("/users");
+
+            }
+        }
+        else
+        {
+            serverValidator?.Validate(response, viewModel);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var user = await httpClient.GetFromJsonAsync<UserViewModel>($"users/{Id}");
+            viewModel = user ?? new UserViewModel();
+        }
+
+    }
+
+
+}

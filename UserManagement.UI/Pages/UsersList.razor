@@ -1,0 +1,220 @@
+﻿@page "/users";
+@using ViewModels
+@inject HttpClient httpClient
+
+
+
+
+<PageTitle>@Title</PageTitle>
+
+    <div class="py-8 px-8  lg:py-16">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">@Title </h3>
+
+        <div class=" flex items-center gap-3">
+            <button type="button" @onclick="()=> GetUsers(null, currentPage, selectedPageSize)" class="py-2 px-4 inline-flex items-center gap-3 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 hover:scale-y-110 transition-all duration-300 ease-in-out ">
+                <img src="images/filter-icon.svg" class="w-4 h-4" />
+                <span>Show All</span>
+            </button>
+            <button type="button" @onclick="()=> GetUsers(true, currentPage, selectedPageSize)" class="py-2 px-4 inline-flex items-center gap-3 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 hover:scale-y-110 transition-all duration-300 ease-in-out ">
+                <img src="images/filter-icon.svg" class="w-4 h-4" />
+                <span>Active Users</span>
+            </button>
+            <button type="button" @onclick="()=> GetUsers(false, currentPage, selectedPageSize)" class="py-2 px-4 inline-flex items-center gap-3 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 hover:scale-y-110 transition-all duration-300 ease-in-out ">
+                <img src="images/filter-icon.svg" class="w-4 h-4" />
+                <span>Inactive Users</span>
+            </button>
+        </div>
+        <a href="users/add" class="py-2 px-4 inline-flex items-center gap-x-4 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 hover:scale-y-110 transition-all duration-300 ease-in-out ">
+            <img src="images/addUser-icon.svg" class="w-4 h-4" />
+            <span>Add User</span>
+        </a>
+    </div>
+
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Forename
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Surname
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Email
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Date Of Birth
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Active
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        <span class="sr-only">Action</span>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var user in userList.Items)
+                {
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            @user.Forename
+                        </th>
+                        <td class="px-6 py-4">
+                            @user.Surname
+                        </td>
+                        <td class="px-6 py-4">
+                            @user.Email
+                        </td>
+                        <td class="px-6 py-4">
+                            @((user.DateOfBirth != null) ? ((DateTime)user.DateOfBirth).ToString("d MMMM yyyy") : "")
+                        </td>
+                        <td class="px-6 py-4">
+                            @if (user.IsActive)
+                            {
+                                <span class="text-green-500">Active</span>
+                            }
+                            else
+                            {
+                                <span class="text-gray-500">Inactive</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right flex gap-4">
+
+                            <a href="users/@user.Id" class="font-medium text-blue-600 dark:text-blue-500 hover:underline hover:scale-y-110 transition-all duration-300 ease-in-out " title="Edit">
+                                View
+                            </a>
+                            <a href="users/edit/@user.Id" class="font-medium text-blue-600 dark:text-blue-500 hover:underline hover:scale-y-110 transition-all duration-300 ease-in-out " title="Edit">
+                                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="2" d="M7 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h1m4-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm7.4 1.6a2 2 0 0 1 0 2.7l-6 6-3.4.7.7-3.4 6-6a2 2 0 0 1 2.7 0Z" />
+                                </svg>
+                                <span class="sr-only">Edit</span>
+                            </a>
+                            <button @onclick="async ()=> await HandleDelete(user)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline hover:scale-y-110 transition-all duration-300 ease-in-out " title="Delete">
+                                <img src="images/delete.svg" class="w-6 h-6 " />
+                                <span class="sr-only">Delete</span>
+
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="flex items-end justify-center gap-8 py-4">
+            <select @bind="@selectedPageSize" @bind:after="HandlePageSizeChange" class="py-3 px-4 pe-9 block bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-transparent dark:text-gray-400 dark:focus:ring-gray-600">
+                @foreach (var option in pageSizeOptions)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <div class="flex flex-col ">
+                <span class="text-sm text-gray-700 dark:text-gray-400">
+                    Showing <span class="font-semibold text-gray-900 dark:text-white">Page @currentPage</span> of <span class="font-semibold text-gray-900 dark:text-white">@userList.TotalPages</span> <span class="font-semibold text-gray-900 dark:text-white">
+                        (@userList.TotalRecords Results)
+                    </span>
+                </span>
+                <div class="inline-flex mt-2 xs:mt-0 gap-2">
+                    <button disabled="@DisablePrevButton" @onclick="LoadPreviousPage" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-offOrange hover:bg-gray-700 transition-all duration-300 rounded disabled:opacity-50 disabled:pointer-events-none">
+                        <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+                        </svg>
+                        Prev
+                    </button>
+                    <button disabled="@DisableNextButton" @onclick="LoadNextPage" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-offOrange hover:bg-gray-700 transition-all duration-300 rounded disabled:opacity-50 disabled:pointer-events-none">
+                        Next
+                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+
+
+@code {
+    private string Title = "Users List";
+
+    private UserListViewModel userList = new();
+    private int currentPage = 1;
+    private int selectedPageSize = 10;
+    private List<int> pageSizeOptions = new List<int> { 5, 10, 20 };
+
+    private bool DisablePrevButton => currentPage <= 1;
+    private bool DisableNextButton => currentPage >= userList.TotalPages;
+    private bool? activeFilter;
+
+    private async Task HandleDelete(UserViewModel userModel)
+    {
+        var response = await httpClient.DeleteAsync($"users/{userModel.Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            userList.Items.Remove(userModel);
+        }
+        else
+        {
+            Console.Error.WriteLine($"Error deleting user: {response.ReasonPhrase}");
+
+        }
+    }
+
+    private async Task GetUsers(bool? active = null, int pageNo = 1, int pageSize = 5)
+    {
+        activeFilter = active;
+        string apiUrl = $"users?pageNo={pageNo}&pageSize={pageSize}";
+        if (active.HasValue)
+
+        {
+            apiUrl += "&isActive=" + active?.ToString().ToLower();
+        }
+        var response = await httpClient.GetFromJsonAsync<UserListViewModel>(apiUrl);
+
+        if (response != null)
+        {
+            userList = new UserListViewModel
+                {
+                    Items = response.Items,
+                    TotalPages = response.TotalPages,
+                    TotalRecords = response.TotalRecords
+                };
+            currentPage = pageNo;
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUsers(activeFilter, 1, selectedPageSize);
+    }
+
+    private async Task LoadPreviousPage()
+    {
+        if (!DisablePrevButton)
+        {
+            await GetUsers(activeFilter, currentPage - 1, selectedPageSize);
+        }
+    }
+
+    private async Task LoadNextPage()
+    {
+        if (!DisableNextButton)
+        {
+            await GetUsers(activeFilter, currentPage + 1, selectedPageSize);
+        }
+    }
+
+    private async Task HandlePageSizeChange()
+    {
+        await GetUsers(activeFilter, 1, selectedPageSize);
+    }
+}

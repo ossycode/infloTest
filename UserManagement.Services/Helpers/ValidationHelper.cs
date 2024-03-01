@@ -6,7 +6,12 @@ using System.Linq;
 namespace UserManagement.Services.Helpers;
 public class ValidationHelper
 {
-    internal static void ModelValidation(object obj)
+    /// <summary>
+    /// Validates the properties of the specified object using data annotations.
+    /// </summary>
+    /// <param name="obj">The object to validate.</param>
+    /// <exception cref="ArgumentException">Thrown if the object fails validation.</exception>
+    public static void ModelValidation(object obj)
     {
         //Model validations
         var validationContext = new ValidationContext(obj);

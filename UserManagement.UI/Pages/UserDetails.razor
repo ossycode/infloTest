@@ -1,0 +1,104 @@
+﻿@page "/users/{Id:long}"
+@using ViewModels
+@inject HttpClient httpClient
+
+<PageTitle>@Title</PageTitle>
+
+    <div class="py-8 px-8  lg:py-16">
+        <a href="/users" class=" mb-6 py-2 px-4 inline-flex items-center gap-3 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400  transition-all duration-300 ease-in-out "> &#8592; Back to Users List</a>
+        <div class="px-4 sm:px-0">
+            <h3 class="text-base font-semibold leading-7 text-gray-900">User Information</h3>
+            <p class="mt-1 max-w-2xl text-base leading-6 text-gray-500">Personal details for @viewModel.Forename.</p>
+    </div>
+    <div class="mt-6 border-t border-gray-100">
+        <dl class="divide-y divide-gray-100">
+            <div class="px-4 py-6 sm:grid sm:grid-cols-10 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Full Name:</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-9 sm:mt-0">@viewModel.Forename @viewModel.Surname</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-10 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Email Address:</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-9 sm:mt-0">@viewModel.Email</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-10 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Date of Birth: </dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-9 sm:mt-0">@((viewModel.DateOfBirth != null) ? ((DateTime)viewModel.DateOfBirth).ToString("d MMMM yyyy") : "")</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-10 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Status:</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-9 sm:mt-0">
+                    @if (viewModel.IsActive)
+                    {
+                        <span class="text-green-500">Active</span>
+                    }
+                    else
+                    {
+                        <span class="text-gray-500">Inactive</span>
+                    }
+                </dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Log Entries:</dt>
+                <dd class="mt-2 text-sm text-gray-900 sm:col-span-1 sm:mt-0">
+                    <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">
+                        @if (viewModel.LogEntries != null)
+                        {
+                            @foreach (var logEntry in viewModel.LogEntries)
+                            {
+                                <li class="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                    <div class="flex gap-4 items-center">
+
+                                        <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                                            <span class="truncate font-medium">Action Type: </span>
+                                            <span class="flex-shrink-0 text-gray-400">@logEntry.ActionName</span>
+                                        </div>
+                                        <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                                            <span class="truncate font-medium">Timestamp: </span>
+                                            <span class="flex-shrink-0 text-gray-400">@logEntry.Timestamp</span>
+                                        </div>
+
+                                        <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                                            <span class=" font-medium">Message: </span>
+                                            <span class="flex-shrink-0 text-gray-400">@logEntry.Msg</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 flex-shrink-0">
+                                        <a href="/logs/@logEntry.Id" class="font-medium text-indigo-600 hover:text-indigo-500">View Details</a>
+                                    </div>
+                                </li>
+
+                            }
+                        }
+                        else
+                        {
+                            <li>No log entries available</li>
+                        }
+                    </ul>
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+    private string? Title = "User Details";
+    UserViewModel viewModel = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var user = await httpClient.GetFromJsonAsync<UserViewModel>($"users/{Id}");
+            viewModel = user ?? new UserViewModel();
+
+            Title = $"User Deatils || {viewModel.Forename} {viewModel.Surname}";
+        }
+
+    }
+
+}

@@ -1,0 +1,38 @@
+﻿@model UserManagement.Web.Models.LogEntries.LogListViewModel
+
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>User ID</th>
+            <th>Log Event</th>
+            <th>Severity</th>
+            <th>Message</th>
+            <th>Action Name</th>
+            <th>Span ID</th>
+            <th>Trace ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr class="log-entry-row">
+                <td>
+                    <a asp-controller="LogEntries" asp-action="Details" asp-route-id="@item.Id" class="log-entry-link">
+                        @item.Timestamp
+                    </a>
+                </td>
+                <td>@item.UserId</td>
+                <td>@item.LogEvent</td>
+                <td>@item.Severity</td>
+                <td>@item.Msg</td>
+                <td>@item.ActionName</td>
+                <td>@item.SpanId</td>
+                <td>@item.TraceId</td>
+            </tr>
+        }
+    </tbody>
+</table>

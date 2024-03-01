@@ -1,0 +1,220 @@
+﻿@page "/logs";
+@using ViewModels
+@inject HttpClient httpClient
+
+
+
+<PageTitle>@Title</PageTitle>
+
+
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden py-8 px-8  lg:py-16">
+        <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    @Title
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Application wide logs
+            </p>
+        </div>
+
+
+    </div>
+
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-slate-800">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-start">
+                    <a class="group inline-flex items-center gap-x-2" href="#">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-200">
+                            Action Name
+                        </span>
+                        <svg class="flex-shrink-0 size-3.5 w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>
+                    </a>
+                </th>
+
+                <th scope="col" class="px-6 py-3 text-start">
+                    <a class="group inline-flex items-center gap-x-2" href="#">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-200">
+                            Message
+                        </span>
+                        <svg class="flex-shrink-0 size-3.5 w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>
+                    </a>
+                </th>
+
+                <th scope="col" class="px-6 py-3 text-start">
+                    <a class="group inline-flex items-center gap-x-2" href="#">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-200">
+                            Severity
+                        </span>
+                        <svg class="flex-shrink-0 size-3.5 w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>
+                    </a>
+                </th>
+
+                <th scope="col" class="px-6 py-3 text-start">
+                    <a class="group inline-flex items-center gap-x-2" href="#">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-200">
+                            Timestamp
+                        </span>
+                        <svg class="flex-shrink-0 size-3.5 w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>
+                    </a>
+                </th>
+                <th scope="col" class="px-6 py-3 text-start">
+
+                </th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            @foreach (var log in logsList.Items)
+            {
+                <tr class="bg-white hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800">
+                    <td class="size-px whitespace-pre-line px-4">
+                        <a class="block relative z-10" href="/logs/@log.Id">
+                            <div class="block text-sm text-blue-600 decoration-2 hover:underline dark:text-blue-500">
+                                <span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                    @(string.IsNullOrEmpty(log.ActionName) ? "Null" : log.ActionName)
+                                </span>
+                            </div>
+                        </a>
+
+                    </td>
+                    <td class="h-px w-72 min-w-72">
+                        <a class="block relative z-10" href="/logs/@log.Id">
+                            <div class="px-6 py-2">
+                                <p class="text-sm text-gray-500">@log.Msg</p>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="size-px whitespace-nowrap">
+                        <a class="block relative z-10" href="/logs/@log.Id">
+                            <div class="px-6 py-2">
+                                <span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                    @log.Severity
+                                </span>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="size-px whitespace-nowrap">
+                        <a class="block relative z-10" href="/logs/@log.Id">
+                            <div class="px-6 py-2">
+                                <span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-lg text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                    @log.Timestamp
+                                </span>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="size-px whitespace-nowrap">
+                        <a class="block relative z-10 hover:underline" href="/logs/@log.Id">
+                            <div class="px-6 py-2">
+                                <span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-lg text-xs font-medium bg-gray-100 text-blue-800 hover:underline">
+                                    Details
+                                </span>
+                            </div>
+                        </a>
+                    </td>
+
+                </tr>
+            }
+
+
+
+
+        </tbody>
+    </table>
+
+    <div class="px-6 py-3 flex justify-center items-center border-t border-gray-200">
+
+        <div class="flex items-end justify-center gap-12 py-4">
+            <select @bind="@selectedPageSize" @bind:after="HandlePageSizeChange" class="py-3 px-4 pe-9 block bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-gray-700 dark:border-transparent dark:text-gray-400 dark:focus:ring-gray-600">
+                @foreach (var option in pageSizeOptions)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+            <div class="flex flex-col ">
+                <span class="text-sm text-gray-700 dark:text-gray-400">
+                    Showing <span class="font-semibold text-gray-900 dark:text-white"> Page @currentPage</span> of <span class="font-semibold text-gray-900 dark:text-white">@logsList.TotalPages </span>  <span class="font-semibold text-gray-900 dark:text-white">
+                        ( @logsList.TotalRecords Results)
+                    </span>
+                </span>
+                <div class="inline-flex mt-2 xs:mt-0 gap-2">
+                    <button disabled="@DisablePrevButton" @onclick="LoadPreviousPage" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-offOrange hover:bg-gray-700 transition-all duration-300 rounded disabled:opacity-50 disabled:pointer-events-none">
+                        <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+                        </svg>
+                        Prev
+                    </button>
+                    <button disabled="@DisableNextButton" @onclick="LoadNextPage" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-offOrange hover:bg-gray-700 transition-all duration-300 rounded disabled:opacity-50 disabled:pointer-events-none">
+                        Next
+                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    private string? Title = "Log Entries";
+    private int currentPage = 1;
+    private int selectedPageSize = 10;
+    private List<int> pageSizeOptions = new List<int> { 5, 10, 20, 50 };
+
+    private LogEntriesList logsList = new();
+
+    private bool DisablePrevButton => currentPage <= 1;
+    private bool DisableNextButton => currentPage >= logsList.TotalPages;
+
+    private async Task GetLogs(int pageNo = 1, int pageSize = 10)
+    {
+        string apiUrl = $"logentries?pageNo={pageNo}&pageSize={pageSize}";
+
+        var response = await httpClient.GetFromJsonAsync<LogEntriesList>(apiUrl);
+
+        if (response != null)
+        {
+            logsList = new LogEntriesList
+                {
+                    Items = response.Items,
+                    TotalPages = response.TotalPages,
+                    TotalRecords = response.TotalRecords
+                };
+            currentPage = pageNo;
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLogs();
+    }
+
+    private async Task LoadPreviousPage()
+    {
+        if (!DisablePrevButton)
+        {
+            await GetLogs(currentPage - 1, selectedPageSize);
+        }
+    }
+
+    private async Task LoadNextPage()
+    {
+        if (!DisableNextButton)
+        {
+            await GetLogs(currentPage + 1, selectedPageSize);
+        }
+    }
+
+    private async Task HandlePageSizeChange()
+    {
+        await GetLogs(currentPage, selectedPageSize);
+    }
+}

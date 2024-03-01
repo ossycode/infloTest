@@ -1,10 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <Content Remove="appsettings - Copy.Development.json" />
+    <Content Remove="appsettings - Copy.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
     <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.11.0" />
   </ItemGroup>
 

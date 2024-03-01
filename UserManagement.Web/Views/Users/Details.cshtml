@@ -1,16 +1,40 @@
-﻿@model UserManagement.Web.Models.Users.UserViewModel
+﻿@model UserManagement.Web.Models.Users.UserListItemViewModel
 
 <h1>User Details</h1>
 
-<table>
+<p>User ID: @Model.Id</p>
+<p>Name: @Model.Forename @Model.Surname</p>
+<p>Email: @Model.Email</p>
+<p>Active: @Model.IsActive</p>
+<p>Date of Birth: @Model.DateOfBirth</p>
 
-    <tr>
-        <th>Forename:</th>
-        <td>@Model.Forename</td>
-    </tr>
-    <tr>
-        <th>Surname:</th>
-        <td>@Model.Surname</td>
-    </tr>
+<h2>Log Entries</h2>
 
-</table>
+@if (Model.LogEntries != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Action Type</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var logEntry in Model.LogEntries)
+            {
+                <tr>
+                    <td>@logEntry.Timestamp</td>
+                    <td>@logEntry.ActionName</td>
+                    <td>@logEntry.Msg</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No log entries available</p>
+}

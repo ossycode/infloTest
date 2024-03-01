@@ -1,0 +1,77 @@
+﻿@page "/logs/{Id:long}"
+@using ViewModels
+@inject HttpClient httpClient
+
+<PageTitle>@Title</PageTitle>
+
+
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm py-8 px-8  lg:py-16">
+        <a href="/logs" class=" mb-6 py-2 px-4 inline-flex items-center gap-3 text-sm font-semibold rounded-lg border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400  transition-all duration-300 ease-in-out "> &#8592; Back to Logs List</a>
+
+        <div class="px-4 sm:px-0">
+            <h3 class="text-base font-semibold leading-7 text-gray-900">Log Information</h3>
+            <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">Severity : <span class="font-bold"> @viewModel.Severity</span></p>
+    </div>
+    <div class="mt-6 border-t border-gray-100">
+        <dl class="divide-y divide-gray-100">
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-2 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Action Name</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@(string.IsNullOrEmpty(viewModel.ActionName) ? "Null" : viewModel.ActionName)</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Timestamp</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@viewModel.Timestamp </dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Trace ID </dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@viewModel.TraceId</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">User Id </dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@viewModel.UserId</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Exception </dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@(string.IsNullOrEmpty(viewModel.Ex) ? "Null" : viewModel.Ex)</dd>
+            </div>
+
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Span ID </dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@viewModel.SpanId</dd>
+            </div>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900 ">Log Event</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0 whitespace-normal overflow-auto">@viewModel.LogEvent</dd>
+            </div>
+
+            <div class="px-4 py-6 sm:grid sm:grid-cols-5 sm:gap-4 sm:px-0">
+                <dt class="text-sm font-medium leading-6 text-gray-900">Message</dt>
+                <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-4 sm:mt-0">@viewModel.Msg</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+    private string? Title = "Log Details";
+    LogEntries viewModel = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var log = await httpClient.GetFromJsonAsync<LogEntries>($"logentries/{Id}");
+            viewModel = log ?? new LogEntries();
+
+            Title = $"Log Details || {viewModel.Severity}";
+
+        }
+
+    }
+
+}
